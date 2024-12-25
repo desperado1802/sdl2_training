@@ -8,6 +8,12 @@
 #include "object.h"
 #include "audio.h"
 #include "entity.h"
+#include <fstream>
+#include <vector>
+
+#define WIDTH 750
+#define HEIGHT 500
+#define TILE_SIZE 16
 
 class Game
 {
@@ -21,6 +27,8 @@ public:
     void input();
     void draw(Object o);
     void draw(const char *msg, int x, int y, int r, int g, int b);
+    void loadMap(const char *filename);
+    void drawMap();
 
 private:
     SDL_Renderer *ren;
@@ -29,10 +37,10 @@ private:
     bool running;
     int count;
     int frameCount, timerFps, lastFrame;
-    Object star;
     int mouseX, mouseY;
     Entity player;
-    int idol, shield;
+    std::vector<Object> map;
+
     // Audio effect;
 };
 

@@ -15,28 +15,25 @@ Game::Game()
         return;
     }
 
-    SDL_CreateWindowAndRenderer(360, 240, 0, &win, &ren);
+    SDL_CreateWindowAndRenderer(WIDTH, HEIGHT, 0, &win, &ren);
     SDL_SetWindowTitle(win, "Salim's First Game!!!");
     TTF_Init();
     running = true;
 
-    // star.setDest(50, 50, 75, 75);
-    // star.setSource(0, 0, 75, 75);
-    // star.setImage("res/image.png", ren);
-    font = TTF_OpenFont("sans.ttf", 24);
+    font = TTF_OpenFont("res/sans.ttf", 24);
+
+    loadMap("res/1.level");
 
     // effect.load("res/jumpEffect.wav");
-    player.setImage("res/player.png", ren);
-    player.setDest(100, 100, 47 * 3, 45 * 3);
-    idol = player.createCycle(1, 47, 45, 2, 20);
-    shield = player.createCycle(2, 47, 45, 4, 10);
-    player.setCurAnimation(idol);
+    // player.setImage("res/player.png", ren);
+    // player.setDest(100, 100, 47 * 3, 45 * 3);
 
     loop();
 }
 
 Game::~Game()
 {
+    TTF_CloseFont(font);
     TTF_Quit();
     SDL_DestroyRenderer(ren);
     SDL_DestroyWindow(win);
@@ -65,18 +62,17 @@ void Game::loop()
 
 void Game::render()
 {
-    SDL_SetRenderDrawColor(ren, 255, 0, 0, 255);
+    SDL_SetRenderDrawColor(ren, 126, 192, 238, 255);
     SDL_Rect rect;
 
     rect.x = rect.y = 0;
-    rect.w = 360;
-    rect.h = 240;
+    rect.w = WIDTH;
+    rect.h = HEIGHT;
     SDL_RenderFillRect(ren, &rect);
 
-    draw(star);
-    draw("this is our first message", 20, 30, 0, 255, 0);
+    // draw(player);
 
-    draw(player);
+    drawMap();
 
     frameCount++;
     int timerFPS = SDL_GetTicks() - lastFrame;
@@ -104,8 +100,6 @@ void Game::input()
             if (e.key.keysym.sym == SDLK_w)
             {
                 // effect.play();
-                std::cout << "W down" << std::endl;
-                player.setCurAnimation(shield);
             }
         }
 
@@ -113,8 +107,6 @@ void Game::input()
         {
             if (e.key.keysym.sym == SDLK_w)
             {
-                std::cout << "W up" << std::endl;
-                player.reverse(true, idol);
             }
         }
 
@@ -156,5 +148,57 @@ void Game::draw(const char *msg, int x, int y, int r, int g, int b)
 
 void Game::update()
 {
-    player.updateAnimation();
+    // player.updateAnimation();
 }
+
+void Game::loadMap(const char *filename)
+{
+    std::cout << "loading map" << std::endl;
+    int current, mx, my, mw, mh;
+    std::ifstream in(filename);
+    if (!in.is_open())
+    {
+
+        std::cout << "Failed to open map file." << std::endl;
+        return;
+    }
+
+    in >> mw;
+    in >> mh;
+    in >> mx;
+    in >> my;
+
+    for (size_t i = 0; i < mh; i++)
+    {
+
+        for (size_t j = 0; j < mw; j++)
+        {
+            if (in.eof())
+            {
+                std::cout << "Reached end of map file too soon." << std::endl;
+                return;
+            }
+            in >> current;
+            if (current != 0)
+            {
+                Object temp;
+                temp.setImage("res/tileset.png", ren);
+                temp.setSource((current - 1) * 32, 0, 32, 32);
+                temp.setDest((j * TILE_SIZE) + mx, (i * TILE_SIZE) + my, TILE_SIZE, TILE_SIZE);
+                if (current == 2 || current == 4)
+                    temp.setSolid(0);
+                map.push_back(temp);
+            }
+        }
+    }
+
+    in.close();
+};
+
+void Game::drawMap()
+{
+    for (size_t i = 0; i < map.size(); i++)
+    {
+        draw(map[i]);
+    }
+};
