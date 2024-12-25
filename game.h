@@ -7,6 +7,7 @@
 #include <SDL2/SDL_ttf.h>
 #include "object.h"
 #include "audio.h"
+#include "entity.h"
 
 class Game
 {
@@ -15,7 +16,7 @@ public:
     ~Game();
 
     void loop();
-    void update() {};
+    void update();
     void render();
     void input();
     void draw(Object o);
@@ -30,7 +31,9 @@ private:
     int frameCount, timerFps, lastFrame;
     Object star;
     int mouseX, mouseY;
-    Audio effect;
+    Entity player;
+    int idol, shield;
+    // Audio effect;
 };
 
 #endif

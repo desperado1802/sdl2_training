@@ -20,12 +20,17 @@ Game::Game()
     TTF_Init();
     running = true;
 
-    star.setDest(50, 50, 75, 75);
-    star.setSource(0, 0, 75, 75);
-    star.setImage("res/image.png", ren);
+    // star.setDest(50, 50, 75, 75);
+    // star.setSource(0, 0, 75, 75);
+    // star.setImage("res/image.png", ren);
     font = TTF_OpenFont("sans.ttf", 24);
 
-    effect.load("res/jumpEffect.wav");
+    // effect.load("res/jumpEffect.wav");
+    player.setImage("res/player.png", ren);
+    player.setDest(100, 100, 47 * 3, 45 * 3);
+    idol = player.createCycle(1, 47, 45, 2, 20);
+    shield = player.createCycle(2, 47, 45, 4, 10);
+    player.setCurAnimation(idol);
 
     loop();
 }
@@ -54,7 +59,7 @@ void Game::loop()
 
         render();
         input();
-        // update();
+        update();
     }
 }
 
@@ -70,6 +75,8 @@ void Game::render()
 
     draw(star);
     draw("this is our first message", 20, 30, 0, 255, 0);
+
+    draw(player);
 
     frameCount++;
     int timerFPS = SDL_GetTicks() - lastFrame;
@@ -96,8 +103,9 @@ void Game::input()
 
             if (e.key.keysym.sym == SDLK_w)
             {
-                effect.play();
+                // effect.play();
                 std::cout << "W down" << std::endl;
+                player.setCurAnimation(shield);
             }
         }
 
@@ -106,6 +114,7 @@ void Game::input()
             if (e.key.keysym.sym == SDLK_w)
             {
                 std::cout << "W up" << std::endl;
+                player.reverse(true, idol);
             }
         }
 
@@ -143,4 +152,9 @@ void Game::draw(const char *msg, int x, int y, int r, int g, int b)
     SDL_FreeSurface(surf);
     SDL_RenderCopy(ren, tex, NULL, &rect);
     SDL_DestroyTexture(tex);
+}
+
+void Game::update()
+{
+    player.updateAnimation();
 }
