@@ -19,10 +19,14 @@ Game::Game()
     SDL_SetWindowTitle(win, "Salim's First Game!!!");
     TTF_Init();
     running = true;
-    count = 0;
+
     star.setDest(50, 50, 75, 75);
     star.setSource(0, 0, 75, 75);
     star.setImage("res/image.png", ren);
+    font = TTF_OpenFont("sans.ttf", 24);
+
+    effect.load("res/jumpEffect.wav");
+
     loop();
 }
 
@@ -46,17 +50,11 @@ void Game::loop()
         {
             lastTime = lastFrame;
             frameCount = 0;
-            count++;
         }
 
         render();
         input();
         // update();
-
-        if (count > 10)
-        {
-            running = false;
-        }
     }
 }
 
@@ -71,7 +69,7 @@ void Game::render()
     SDL_RenderFillRect(ren, &rect);
 
     draw(star);
-    draw("this is our first message", 20, 30, 0, 255, 0, 24);
+    draw("this is our first message", 20, 30, 0, 255, 0);
 
     frameCount++;
     int timerFPS = SDL_GetTicks() - lastFrame;
@@ -90,6 +88,28 @@ void Game::input()
     {
         if (e.type == SDL_QUIT)
             running = false;
+
+        if (e.type == SDL_KEYDOWN)
+        {
+            if (e.key.keysym.sym == SDLK_ESCAPE)
+                running = false;
+
+            if (e.key.keysym.sym == SDLK_w)
+            {
+                effect.play();
+                std::cout << "W down" << std::endl;
+            }
+        }
+
+        if (e.type == SDL_KEYUP)
+        {
+            if (e.key.keysym.sym == SDLK_w)
+            {
+                std::cout << "W up" << std::endl;
+            }
+        }
+
+        SDL_GetMouseState(&mouseX, &mouseY);
     }
 
     const Uint8 *keystates = SDL_GetKeyboardState(NULL);
@@ -102,11 +122,10 @@ void Game::draw(Object o)
     SDL_RenderCopyEx(ren, o.getTex(), &src, &dest, 0, NULL, SDL_FLIP_NONE);
 }
 
-void Game::draw(const char *msg, int x, int y, int r, int g, int b, int size)
+void Game::draw(const char *msg, int x, int y, int r, int g, int b)
 {
     SDL_Surface *surf;
     SDL_Texture *tex;
-    TTF_Font *font = TTF_OpenFont("sans.ttf", size);
     SDL_Color color;
     color.r = r;
     color.g = g;
