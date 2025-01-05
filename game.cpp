@@ -5,7 +5,7 @@ Game::Game()
 
     if (SDL_Init(SDL_INIT_EVERYTHING) < 0)
     {
-        std::cout << "Failed at SDL_Init" << std::endl;
+        std::cout << "Failed at SDL_Init: " << SDL_GetError() << std::endl;
     }
 
     if (!(IMG_Init(IMG_INIT_PNG) & IMG_INIT_PNG))
@@ -15,7 +15,10 @@ Game::Game()
         return;
     }
 
-    SDL_CreateWindowAndRenderer(WIDTH, HEIGHT, 0, &win, &ren);
+    if (SDL_CreateWindowAndRenderer(WIDTH, HEIGHT, 0, &win, &ren) < 0)
+    {
+        std::cout << "Failed at SDL_CreateWindowAndRenderer: " << SDL_GetError() << std::endl;
+    }
     SDL_SetWindowTitle(win, "Salim's First Game!!!");
     TTF_Init();
     running = true;
@@ -27,6 +30,8 @@ Game::Game()
     // effect.load("res/jumpEffect.wav");
     // player.setImage("res/player.png", ren);
     // player.setDest(100, 100, 47 * 3, 45 * 3);
+    speed = 1;
+    mapX = mapY = 0;
 
     loop();
 }
@@ -43,11 +48,11 @@ Game::~Game()
 void Game::loop()
 {
     std::cout << "game started in loop" << std::endl;
+    static int lastTime;
     while (running)
     {
 
         lastFrame = SDL_GetTicks();
-        static int lastTime;
         if (lastFrame >= (lastTime + 1000))
         {
             lastTime = lastFrame;
@@ -149,6 +154,8 @@ void Game::draw(const char *msg, int x, int y, int r, int g, int b)
 void Game::update()
 {
     // player.updateAnimation();
+
+    scroll();
 }
 
 void Game::loadMap(const char *filename)
@@ -195,10 +202,24 @@ void Game::loadMap(const char *filename)
     in.close();
 };
 
+void Game::scroll()
+{
+    for (size_t i = 0; i < map.size(); i++)
+    {
+        // if (map[i].getDX() >= mapX - TILE_SIZE && map[i].getDY() >= mapY - TILE_SIZE && map[i].getDX() <= mapX + WIDTH + TILE_SIZE && map[i].getDY() <= mapY + HEIGHT + TILE_SIZE)
+        // {
+        map[i].setDest(map[i].getDX() + speed, map[i].getDY() + speed);
+        // }
+    }
+}
+
 void Game::drawMap()
 {
     for (size_t i = 0; i < map.size(); i++)
     {
-        draw(map[i]);
+        if (map[i].getDX() >= mapX - TILE_SIZE && map[i].getDY() >= mapY - TILE_SIZE && map[i].getDX() <= mapX + WIDTH + TILE_SIZE && map[i].getDY() <= mapY + HEIGHT + TILE_SIZE)
+        {
+            draw(map[i]);
+        }
     }
 };

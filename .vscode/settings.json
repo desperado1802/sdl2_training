@@ -1,6 +1,8 @@
 {
   "files.associations": {
-    "iostream": "cpp"
+    "iostream": "cpp",
+    "string": "cpp",
+    "vector": "cpp"
   },
   "cSpell.words": ["keysym", "SDLK"]
 }

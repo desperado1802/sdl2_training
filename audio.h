@@ -8,7 +8,7 @@ class Audio
 {
 
 public:
-    Audio(/* args */);
+    Audio();
     ~Audio();
     void load(const char *filename);
     void play();
